@@ -5,37 +5,34 @@ var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
 var compression = require('compression');
 
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-    extended: true
-}));
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
+
 app.use(compression({
   threshold: 512
 }))
 
 var oneDay = 86400000;
 
-app.use('/', express.static(__dirname + '/sales', { maxAge: oneDay }));
-app.use('/app', express.static(__dirname + '/', { maxAge: oneDay }));
-
 server.listen(1337);
 
-mongoose.connect('mongodb://localhost/subdoc');
+mongoose.connect('mongodb://localhost/locanon_dev_db');
 var db = mongoose.connection;
 
 var MessageSchema = mongoose.Schema({
-    lat: Number,
-    lng: Number,
+    loc: {
+      lng: Number,
+      lat: Number
+    },
     messageString: String,
     likes: Number,
     dislikes: Number,
   });
 
-var Messages = mongoose.model('Messages', MessageSchema)
-
-
-
-
+var Message = mongoose.model('Message', MessageSchema)
 
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -48,31 +45,39 @@ app.get('/', function(req, res){
   console.log('Im Alive!');
 });
 
+// create a new message
 app.post('/app', function(req, res){
-  //var requestParam = req.params.tagId.split('--');
-  
-  // var lat = requestParam[0];
-  // var lng = requestParam[1];
-  console.log('POST')
-  console.log(req);
-  //res.json(req)
+  var json = JSON.parse(req.body.data);
+
+  a = new Message({
+    loc: {
+      lng: json.lng,
+      lat: json.lat
+    },
+    messageString: json.message,
+    likes: 0,
+    dislikes: 0
+  });
+
+  a.save();
+  console.log(a);
 });
 
-
+// retrieve all messages for a given location (tag);
 app.get('/app/:tagId', function (req, res) {
-  var requestParam = req.params.tagId;
+  var requestParam = req.params.tagId.split('--');
 
-  var dummy = {dummyData: requestParam};
-  
-  // should probably delete this at some point?
-  res.setHeader('Access-Control-Allow-Origin','*');
+  var lat = Number(requestParam[1]);
+  var lng = Number(requestParam[0]);
 
+  Message.find({'loc.lng': lng, 'loc.lat': lat}, function(err, docs){
+    console.log(docs);
+    // should probably delete this at some point?
+    res.setHeader('Access-Control-Allow-Origin','*');
 
-  res.json(dummy);
-  res.end()
-
-
-  
+    res.json(docs);
+    res.end()
+  });
 });
 
 
