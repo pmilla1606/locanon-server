@@ -47,7 +47,7 @@ app.get('/', function(req, res){
 
 // create a new message
 app.post('/app', function(req, res){
-  var json = JSON.parse(req.body.data);
+  var json = req.body;
 
   a = new Message({
     loc: {
@@ -60,7 +60,8 @@ app.post('/app', function(req, res){
   });
 
   a.save();
-  console.log(a);
+  res.status(200).json(a)
+  res.end()
 });
 
 // retrieve all messages for a given location (tag);
@@ -71,11 +72,11 @@ app.get('/app/:tagId', function (req, res) {
   var lng = Number(requestParam[0]);
 
   Message.find({'loc.lng': lng, 'loc.lat': lat}, function(err, docs){
-    console.log(docs);
+    
     // should probably delete this at some point?
-    res.setHeader('Access-Control-Allow-Origin','*');
+    //res.setHeader('Access-Control-Allow-Origin','*');
+    res.status(200).json(docs)
 
-    res.json(docs);
     res.end()
   });
 });
