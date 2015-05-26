@@ -23,17 +23,24 @@ mongoose.connect('mongodb://localhost/locanon_dev_db');
 var db = mongoose.connection;
 
 var MessageSchema = mongoose.Schema({
-    loc: {
-      lng: Number,
-      lat: Number
-    },
     messageString: String,
-    likes: Number,
-    dislikes: Number,
+    timesFlagged: Number,
+    loc: {
+      'type': {
+        type: String,
+        enum: "Point",
+        default: "Point"
+      },
+      coordinates: {
+        type: [Number],
+        default: [0,0]
+      }
+    },
   });
 
-var Message = mongoose.model('Message', MessageSchema)
+MessageSchema.index({'loc': '2dsphere'});
 
+var Message = mongoose.model('Message', MessageSchema)
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
@@ -49,14 +56,16 @@ app.get('/', function(req, res){
 app.post('/app', function(req, res){
   var json = req.body;
 
+  var coords = [];
+  coords[0] = json.lng;
+  coords[1] = json.lat;
+
   a = new Message({
-    loc: {
-      lng: json.lng,
-      lat: json.lat
-    },
     messageString: json.message,
-    likes: 0,
-    dislikes: 0
+    timesFlagged: 0, // ++ this from users, if timesFlagged == 5 e.g. don't display it
+    loc: {
+      coordinates: coords
+    }
   });
 
   a.save();
@@ -68,15 +77,26 @@ app.post('/app', function(req, res){
 app.get('/app/:tagId', function (req, res) {
   var requestParam = req.params.tagId.split('--');
 
-  var lat = Number(requestParam[1]);
   var lng = Number(requestParam[0]);
+  var lat = Number(requestParam[1]);
 
-  Message.find({'loc.lng': lng, 'loc.lat': lat}, function(err, docs){
-    
+  Message.find({
+    loc: {
+      $nearSphere: {
+       $geometry: {
+          type : "Point",
+          coordinates : requestParam
+       },
+       $maxDistance: 10000 // 100 meters?
+      }
+    },
+  },
+  function(err, docs){
+    if (err) console.log(err)
+
     // should probably delete this at some point?
     //res.setHeader('Access-Control-Allow-Origin','*');
     res.status(200).json(docs)
-
     res.end()
   });
 });
