@@ -57,9 +57,10 @@ app.post('/app', function(req, res){
   var json = req.body;
 
   var coords = [];
-  coords[0] = json.lng;
-  coords[1] = json.lat;
+  coords[0] = Number(json.lng);
+  coords[1] = Number(json.lat);
 
+  // console.log('creating new msg with coords -> ', coords)
   a = new Message({
     messageString: json.message,
     timesFlagged: 0, // ++ this from users, if timesFlagged == 5 e.g. don't display it
@@ -80,14 +81,17 @@ app.get('/app/:tagId', function (req, res) {
   var lng = Number(requestParam[0]);
   var lat = Number(requestParam[1]);
 
+  var coords = [lng, lat]
+
+  // console.log('retrieving msg with coords -> ', coords)
   Message.find({
     loc: {
       $nearSphere: {
        $geometry: {
           type : "Point",
-          coordinates : requestParam
+          coordinates : coords
        },
-       $maxDistance: 10000 // 100 meters?
+       $maxDistance: 100   // 100 meters?
       }
     },
   },
