@@ -87,7 +87,7 @@ app.get('/app/:tagId', function (req, res) {
           type : "Point",
           coordinates : requestParam
        },
-       $maxDistance: 10000 // 100 meters?
+       $maxDistance: 20 // 100 meters?
       }
     },
   },
