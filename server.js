@@ -33,7 +33,7 @@ if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
   process.env.OPENSHIFT_APP_NAME;
 }
 
-mongoose.connect('mongodb://localhost/locanon_dev_db');
+mongoose.connect(connection_string);
 var db = mongoose.connection;
 
 var MessageSchema = mongoose.Schema({
