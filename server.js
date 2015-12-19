@@ -84,15 +84,17 @@ app.get('/app/:tagId', function (req, res) {
   var coords = [lng, lat]
 
   // console.log('retrieving msg with coords -> ', coords)
+  // find({ size: 'small' }).where('createdDate').gt(oneYearAgo).exec(callback);
   Message.find({
     loc: {
       $nearSphere: {
-       $geometry: {
+        $geometry: {
           type : "Point",
           coordinates : coords
-       },
-       $maxDistance: 20 // 100 meters?}
-    },
+        },
+        $maxDistance: 20 // 100 meters?}
+      }
+    }
   }, function(err, docs){
     if (err) console.log(err)
 
