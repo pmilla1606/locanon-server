@@ -1,4 +1,3 @@
-
 var express     = require('express');
 var app         = express();
 var server      = require('http').createServer(app);
@@ -94,8 +93,7 @@ app.get('/app/:tagId', function (req, res) {
        },
        $maxDistance: 20 // 100 meters?}
     },
-  },
-  function(err, docs){
+  }, function(err, docs){
     if (err) console.log(err)
 
     // should probably delete this at some point?
@@ -104,3 +102,4 @@ app.get('/app/:tagId', function (req, res) {
     res.end()
   });
 });
+
