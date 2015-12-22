@@ -21,6 +21,9 @@ var oneDay = 86400000;
 var ip_addr = process.env.OPENSHIFT_NODEJS_IP   || '127.0.0.1';
 var port    = process.env.OPENSHIFT_NODEJS_PORT || '8080';
 
+console.log('PORT-------------------->', port)
+console.log('IP ADDRESS-------------------->', ip_addr)
+
 server.listen(port);
 
 // default to a 'localhost' configuration:
@@ -33,7 +36,7 @@ if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
   process.env.OPENSHIFT_MONGODB_DB_PORT + '/' +
   process.env.OPENSHIFT_APP_NAME;
 }
-
+console.log('CONNECTION STRING', connection_string)
 mongoose.connect(connection_string);
 var db = mongoose.connection;
 
