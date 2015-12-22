@@ -87,6 +87,7 @@ app.post('/app', function(req, res){
   });
 
   a.save();
+  console.log('Saved ', a);
   res.status(200).json(a)
   res.end()
 });
