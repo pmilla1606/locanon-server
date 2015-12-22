@@ -4,6 +4,7 @@ var server      = require('http').createServer(app);
 var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
 var compression = require('compression');
+var http        = require('http');
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,14 +18,12 @@ app.use(compression({
 
 var oneDay = 86400000;
 
+app.set('port', process.env.OPENSHIFT_NODEJS_PORT || '8080');
+app.set('ip', process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1');
 
-var ip_addr = process.env.OPENSHIFT_NODEJS_IP   || '127.0.0.1';
-var port    = process.env.OPENSHIFT_NODEJS_PORT || '8080';
-
-console.log('PORT-------------------->', port)
-console.log('IP ADDRESS-------------------->', ip_addr)
-
-server.listen(port);
+http.createServer(app).listen(app.get('port') ,app.get('ip'), function () {
+    console.log("✔ Express server listening at %s:%d ", app.get('ip'),app.get('port'));
+});
 
 // default to a 'localhost' configuration:
 var connection_string = 'mongodb://localhost/locanon_dev_db';
