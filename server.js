@@ -17,10 +17,11 @@ app.use(compression({
 
 var oneDay = 86400000;
 
-server.listen(1337);
 
 var ip_addr = process.env.OPENSHIFT_NODEJS_IP   || '127.0.0.1';
 var port    = process.env.OPENSHIFT_NODEJS_PORT || '8080';
+
+server.listen(port);
 
 // default to a 'localhost' configuration:
 var connection_string = 'mongodb://localhost/locanon_dev_db';
