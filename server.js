@@ -114,9 +114,8 @@ app.get('/app/:tagId', function (req, res) {
         $maxDistance: 20 // 100 meters?}
       }
     }
-  }, function(err, docs){
+  }).sort({created_at: -1}).exec(function(err, docs){
     if (err) console.log(err)
-      console.log(docs)
     // should probably delete this at some point?
     //res.setHeader('Access-Control-Allow-Origin','*');
     res.status(200).json(docs)
