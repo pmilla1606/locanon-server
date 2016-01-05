@@ -6,9 +6,6 @@ var mongoose    = require('mongoose');
 var compression = require('compression');
 var http        = require('http');
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
-
 // parse application/json
 app.use(bodyParser.json());
 
@@ -20,7 +17,9 @@ var oneDay = 86400000;
 
 app.set('port', process.env.OPENSHIFT_NODEJS_PORT || '8080');
 app.set('ip', process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1');
-
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 http.createServer(app).listen(app.get('port') ,app.get('ip'), function () {
     console.log("✔ Express server listening at %s:%d ", app.get('ip'),app.get('port'));
 });
@@ -40,6 +39,7 @@ mongoose.connect(connection_string);
 var db = mongoose.connection;
 
 var MessageSchema = mongoose.Schema({
+    created_at: { type: Date },
     messageString: String,
     timesFlagged: Number,
     loc: {
@@ -72,14 +72,15 @@ app.get('/', function(req, res){
 // create a new message
 app.post('/app', function(req, res){
   var json = req.body;
-
+  console.log(req.body)
   var coords = [];
   coords[0] = Number(json.lng);
   coords[1] = Number(json.lat);
 
   // console.log('creating new msg with coords -> ', coords)
   a = new Message({
-    messageString: json.message,
+    created_at: new Date(),
+    messageString: json.msg,
     timesFlagged: 0, // ++ this from users, if timesFlagged == 5 e.g. don't display it
     loc: {
       coordinates: coords
@@ -115,7 +116,7 @@ app.get('/app/:tagId', function (req, res) {
     }
   }, function(err, docs){
     if (err) console.log(err)
-
+      console.log(docs)
     // should probably delete this at some point?
     //res.setHeader('Access-Control-Allow-Origin','*');
     res.status(200).json(docs)
